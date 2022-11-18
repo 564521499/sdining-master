@@ -1,0 +1,47 @@
+{% load staticfiles %}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>出错啦！ </title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .for-logo {
+            margin: 30% 0 10% 0;
+            text-align: center;
+        }
+
+        #the-logo {
+            text-align: center;
+            width: 30%;
+            height: 35%;
+            margin-top: 25vh;
+        }
+
+        p {
+            text-align: center;
+            font-size: 3vh;
+        }
+
+        h1 {
+            border-bottom: 1px solid grey;
+            padding: 30px;
+        }
+    </style>
+</head>
+
+<body style="height:100vh">
+<i class="glyphicon glyphicon-chevron-left" style="cursor: pointer; font-size: 7em" onclick="window.location.href='{% url 'ucenterindex' %}'"></i>
+<div class="for-logo">
+    <img id="the-logo" src="{% static 'img/indev.jpg' %}"
+         alt="加载失败" style="max-width:100%"/>
+</div>
+<div>
+    <p>功能开发中，敬请期待...</p>
+</div>
+</body>

@@ -1,0 +1,396 @@
+{% load staticfiles %}
+{% load mvctags %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=600px">
+    <link rel="shortcut icon" href="#" type="image/x-icon"/>
+
+    <meta name="format-detection" content="telephone=no">
+    <title>智慧食堂</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <script src="{% static 'js/zepto.js' %}"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/slider.js' %}"></script>
+    <link href="{% static 'css/index/style.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/index/main.css' %}" rel="stylesheet" type="text/css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            list-style: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        #carousel {
+
+            position: relative;
+            width: 100vw;
+            height: 30vh;
+            background-color: red;
+        }
+
+        .inner {
+
+            position: absolute;
+            top: 0;
+            width: 300vw;
+            height: 30vh;
+        }
+
+        .animate1 {
+            transition: transform 0.5s;
+        }
+
+        #carousel .section {
+            float: left;
+            width: 100vw;
+            height: 30vh;
+        }
+
+        #carousel img {
+            width: 100vw;
+            height: 30vh;
+            background-color: #FF0000;
+        }
+
+        #indicators {
+            width: 65px;
+            height: 15px;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            margin-left: -32.5px;
+
+            z-index: 999;
+        }
+
+        #indicators li {
+            float: left;
+            width: 15px;
+            height: 15px;
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        #indicators li:not(:last-child) {
+            margin-right: 10px;
+        }
+
+        #indicators .active {
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+<div id="block">
+    <!--title_top-->
+    <header>
+        <div class="row">
+            <div class="col-xs-3">
+                <select class="canteen" title="canteen" onchange="javascript:location.href=this.value;">
+                    <option value="?position=3" {% if request.GET.position == '3' %}selected="selected"{% endif %}>
+                        武院食堂
+                    </option>
+                    <option value="?position=1" {% if request.GET.position == '1' %}selected="selected"{% endif %}>
+                        楚园食堂
+                    </option>
+                    <option value="?position=2" {% if request.GET.position == '2' %}selected="selected"{% endif %}>
+                        汉园食堂
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-xs-6 text-center">
+                <form action="{% url 'index' %}" method="get">
+                    <label for="show"></label>
+                    <input id="show" class="text-center" type="search" name="q"
+                           value="{% if is_search %}{{ is_search }}{% else %}欢迎使用智慧食堂{% endif %}"
+                           onfocus="this.value=''"
+                           required>
+                    <input type="submit" style="display: none">
+                </form>
+            </div>
+
+            <div class="col-xs-3  text-right" style="cursor: pointer"
+                 onclick="location.href='{% url 'ucenterindex' %}'">
+                <span class="glyphicon glyphicon-user"></span>
+            </div>
+        </div>
+    </header>
+
+    <div id="search" style="display: none">
+        <p class="text-center" id="cantent_search">匹配商家</p>
+        {% for business in search_list %}
+            <a href="{% url 'businessdetail' business.pk %}">
+                <div class="show row ">
+                    <div class="col-xs-3">
+                        <img src="/media/{{ business.image }}" alt="">
+                    </div>
+                    <div class="col-xs-9">
+                        <h4>{{ business.name }}</h4>
+                        <span>
+                                        <p>特色菜：{% for food in business.special.foods.all %}
+                                            {{ food.name }}
+                                        {% empty %}
+                                            {% for food in business.foodlist.all|slice:"3" %}
+                                                {{ food.name }}
+                                            {% endfor %}
+                                        {% endfor %}</p>
+                                        <span><p class="text-right">人均消费：{{ business.average }}元</p></span>
+                                </span>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+
+    <!--slider-->
+    <div>
+        <div id="search_Q">
+            <div id="carousel">
+
+
+                <!-- Wrapper for slides -->
+                <ul class="inner" role="listbox">
+                    {% get_banner as banner_list %}
+                    {% for banner in banner_list %}
+                        <li class="section">
+                            <img src="media/{{ banner.image }}" alt="{{ banner.alttext }}">
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+            <!--content-->
+            <main>
+                <div class="row" id="main_nav">
+                    <div class="col-xs-12">
+                        <!-- Nav tabs -->
+                        <ul class="nav-tabs nav text-center" role="tablist">
+                            <li class="col-xs-4 active" role="presentation">
+                                <a onclick="change(id=1)">
+                                    <img class="filter" src="/media/logo/tuijian.png" alt="">
+                                    <p class="text-center">精品推荐</p>
+                                </a>
+                            </li>
+                            <li class="col-xs-4" role="presentation">
+                                <a onclick="change(id=2)">
+                                    <img class="filter" src="//bpic.588ku.com/element_origin_min_pic/21/01/23/391833d3cc7ab0fac3c386c701a7c616.jpg" alt="">
+                                    <p class="text-center">餐品类</p>
+                                </a>
+                            </li>
+                            <li class="col-xs-4" role="presentation">
+                                <a onclick="change(id=3)">
+                                    <img class="filter" src="http://ouq4wie1o.bkt.clouddn.com/logo3.png" alt="">
+                                    <p class="text-center">饮品类</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row" style="height: 30px;background:rgba(0,0,0,0.04)">
+
+                </div>
+                <div class="row" id="content">
+                    <div class="col-xs-12">
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active canteen" id="food_fine">
+                                <div class="row">
+                                    <h3 class="title">精品推荐</h3>
+                                </div>
+                                {% for business in recommend_list %}
+                                    <a href="{% url 'businessdetail' business.business.pk %}">
+                                        <div class="show row ">
+                                            <div class="col-xs-3">
+                                                <img src="media/{{ business.business.image }}" alt="">
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <h4 style="font-size: 23px"> {{ business.business.name }}&nbsp;&nbsp;
+                                                    {% if not business.business.is_open %}
+                                                        <span style="background: #4b7fd3; color: #FFFFFF; ">商家休息</span>
+                                                    {% endif %}
+                                                    <span class="pull-right"
+                                                          style="font-size: 18px">综合评分：{{ business.business.rank }}</span>
+                                                </h4>
+
+                                                <span>
+                                        <p style="">特色菜：{% for food in business.business.special.foods.all %}
+                                            {{ food.name }}
+                                        {% empty %}
+                                            {% for food in business.business.foodlist.all|slice:"2" %}
+                                                {{ food.name }}
+                                            {% endfor %}
+                                        {% endfor %}</p>
+                                                <span><p class="pull-left"
+                                                         style="margin-top: 5px">位置：{{ business.business.get_position_display }} {{ business.business.get_floor_display }}</p></span>
+                                            <span><p class="text-right">人均消费：{{ business.business.average }}元</p></span>
+                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <hr>
+                                {% endfor %}
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane canteen" id="food_eat">
+                                <div class="row">
+                                    <h3 class="title">美味餐点</h3>
+                                </div>
+                                {% business_type_filter business_list 1 as meal_list %}
+                                {% for business in meal_list %}
+                                    <a href="{% url 'businessdetail' business.pk %}">
+                                        <div class="show row ">
+                                            <div class="col-xs-3">
+                                                <img src="media/{{ business.image }}" alt="">
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <h4>{{ business.name }}&nbsp;&nbsp;{% if not business.is_open %}
+                                                    <span style="background: #4b7fd3; color: #FFFFFF; ">商家休息</span>
+                                                {% endif %}
+                                                    <span class="pull-right"
+                                                          style="font-size: 18px">综合评分：{{ business.rank }}</span>
+
+                                                </h4>
+
+                                                <span>
+                                        <p>特色菜：{% for food in business.special.foods.all %}
+                                            {{ food.name }}
+                                        {% empty %}
+                                            {% for food in business.foodlist.all|slice:"3" %}
+                                                {{ food.name }}
+                                            {% endfor %}
+                                        {% endfor %}
+                                            </p>
+                                                <span><p
+                                                        class="pull-left">位置：{{ business.get_position_display }} {{ business.get_floor_display }}</p></span>
+                                            <span><p class="text-right">人均消费：{{ business.average }}元</p></span>
+                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <hr>
+                                {% endfor %}
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane canteen" id="food_drink">
+                                <div class="row">
+                                    <h3 class="title">饮品精选</h3>
+                                </div>
+                                {% business_type_filter business_list 2 as drink_list %}
+                                {% for business in drink_list %}
+                                    <a href="{% url 'businessdetail' business.pk %}">
+                                        <div class="show row ">
+                                            <div class="col-xs-3">
+                                                <img src="media/{{ business.image }}" alt="">
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <h4>{{ business.name }}&nbsp;&nbsp;{% if not business.is_open %}
+                                                    <span style="background: #4b7fd3; color: #FFFFFF; ">商家休息</span>
+                                                {% endif %}
+                                                    <span class="pull-right"
+                                                          style="font-size: 18px">综合评分：{{ business.rank }}</span>
+                                                </h4>
+                                                <span>
+                                        <p>特色菜：{% for food in business.special.foods.all %}
+                                            {{ food.name }}
+                                        {% empty %}
+                                            {% for food in business.foodlist.all|slice:"3" %}
+                                                {{ food.name }}
+                                            {% endfor %}
+                                        {% endfor %}
+                                            </p>
+                                                <span><p
+                                                        class="pull-left">位置：{{ business.get_position_display }} {{ business.get_floor_display }}</p></span>
+                                            <span><p class="text-right">人均消费：{{ business.average }}元</p></span>
+                                            </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!--footer-->
+            <footer style="height: 80px" class="text-center">
+            </footer>
+        </div>
+    </div>
+</div>
+
+<footer class="text-center" style="font-size: 1.2em">
+    © 2017 众焰科技, Inc.
+</footer>
+
+
+<script>
+    function change(id) {
+        if (id == 1) {
+            $('#food_fine').addClass('active');
+            $('#food_eat').removeClass('active');
+            $('#food_drink').removeClass('active');
+        } else if (id == 2) {
+            $('#food_fine').removeClass('active');
+            $('#food_eat').addClass('active');
+            $('#food_drink').removeClass('active');
+        } else {
+            $('#food_fine').removeClass('active');
+            $('#food_eat').removeClass('active');
+            $('#food_drink').addClass('active');
+        }
+    }
+
+    {% if request.GET.q %}
+        $(document).ready(function () {
+            $("#show").click();
+        });
+    {% endif %}
+
+    $("#show").click(function () {
+        $("#search").show();
+    });
+
+    tag1 = $("#search_Q");
+    $("#show").click(function () {
+        tag1.css("filter", "blur(38px)");
+        tag1.css("-webkit-filter", "blur(38px)");
+        tag1.css("-ms-filter", "blur(38px)");
+        tag1.css("background", "rgba(255, 200, 200, 0.03)");
+        tag1.css("pointer-events", "none");
+    });
+
+    $(document).mouseup(function (e) {
+        const _con = $(' #search ');
+        if (!_con.is(e.target) && _con.has(e.target).length === 0) { // Mark 1
+            $("#search").hide();
+            tag1.css("-webkit-filter", "none");
+            tag1.css("-ms-filter", "none");
+            tag1.css("filter", "none");
+            tag1.css("background", "none");
+            tag1.css("pointer-events", "auto");
+        }
+    });
+
+    $("#carousel").myslider({
+        autoLoop: true
+    });
+
+</script>
+</body>
+</html>

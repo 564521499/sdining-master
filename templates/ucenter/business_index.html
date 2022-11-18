@@ -1,0 +1,201 @@
+{% load staticfiles %}
+{% load mvctags %}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.js"></script>
+    <title></title>
+    <style>
+        @media screen and (max-width: 325px) {
+            .detail-left span {
+                font-size: 13px;
+            }
+
+            .detail-right span {
+                font-size: 13px !important;
+            }
+
+            .ingOrdone > span > span {
+                font-size: 13px;
+            }
+        }
+
+        @media screen  and (min-width: 325px) {
+            .detail-left span {
+                font-size: 15px;
+            }
+
+            .detail-right span {
+                font-size: 15px !important;
+            }
+
+            .ingOrdone > span > span {
+                font-size: 15px;
+            }
+        }
+
+        @media screen and (min-width: 400px) {
+            * {
+                font-size: 17px;
+            }
+
+            .detail-left span {
+                font-size: 17px;
+            }
+
+            .detail-right span {
+                font-size: 17px !important;
+            }
+
+            .ingOrdone > span > span {
+                font-size: 15px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/ucenter/ucenter.css' %}">
+
+</head>
+<body>
+<header>
+    <i class="glyphicon glyphicon-chevron-left back" onclick="location.href='{% url 'index' %}'"></i>
+    <span>商家个人中心</span>
+</header>
+<nav>
+    <div class="navleft">
+        <img class="myimg" src="/media/{{ user.business.image }}">
+    </div>
+    <div class="navright">
+        <ul>
+            <li>商家：{{ user.business }}</li>
+            <li>位置：{{ user.business.get_position_display }} {{ user.business.get_floor_display }}</li>
+        </ul>
+    </div>
+    {% if user.business.is_open %}
+        <button onclick="window.location.href='{% url 'changestatus' %}'" style="float: right; border: 1px solid green">点击改变为休息状态
+        </button>
+    {% else %}
+        <button onclick="window.location.href='{% url 'changestatus' %}'" style="float: right; border: 1px solid red">点击改变为接单状态
+        </button>
+    {% endif %}
+</nav>
+
+<div class="content">
+    <div class="c-info">
+        <span>订单信息</span>
+    </div>
+    <div class="c-info-main">
+        <div class="ingOrdone">
+                <span id="clickUndo" class="ing-active">
+                    <span>待处理</span>
+                </span>
+            <span id="clickIng">
+                    <span>进行中</span>
+                </span>
+            <span id="clickDone">
+                    <span>已完成</span>
+                </span>
+        </div>
+        <div class="info-detail">
+            <ul id="undo">
+                {% get_pending_order_list user.business as undo_order_list %}
+                {% for order in undo_order_list %}
+                    <li>
+                        <div class="detail-left">
+                            <span>订单号: {{ order.pk }}</span>
+                            <span>取餐时间: {{ order.date_pickup }}</span>
+                            <span>备注: {{ order.remark }}</span>
+                        </div>
+                        <div class="detail-right">
+                            <span>{{ order.food.name }}</span>
+                            <span class="undo" onclick="location.href = '{% url 'accept_or_deny' %}?op=accept&opk={{ order.pk }}'">接受订单</span>
+                            <span class="undo" onclick="location.href = '{% url 'accept_or_deny' %}?op=deny&opk={{ order.pk }}'" style="background-color: red; margin-top: 5px">拒绝订单</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <ul id="ing">
+                {% for order in user.get_businessuser_now_order %}
+                    <li>
+                        <div class="detail-left">
+                            <span>订单号: {{ order.pk }}</span>
+                            <span>取餐时间: {{ order.date_pickup }}</span>
+                            <span>备注: {{ order.remark }}</span>
+                        </div>
+                        <div class="detail-right">
+                            <span>{{ order.food.name }}</span>
+                            <span>姓名：{{ order.user.truename }}</span>
+                            <span class="undo" onclick="doneorder({{ order.pk }})">已取餐</span>
+                            <span class="undo" style="background-color: red; margin-top: 5px" onclick="complain(opk={{ order.pk }}, b=this)">未取餐</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <ul id="done">
+            {% get_done_order_list user.business as now_order_list %}
+                {% for order in now_order_list %}
+                    <li>
+                        <div class="detail-left">
+                            <span>订单号: {{ order.pk }}</span>
+                            <span>完成时间: {{ order.date_done |date:"H:m" }}</span>
+
+                        </div>
+                        <div class="detail-right">
+                            <span>{{ order.food.name }}</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script>
+    document.getElementById('clickUndo').onclick = function () {
+        document.getElementById('clickUndo').setAttribute('class', 'ing-active');
+        document.getElementById('clickIng').setAttribute('class', '');
+        document.getElementById('clickDone').setAttribute('class', '');
+        document.getElementById('undo').style.display = "block";
+        document.getElementById('ing').style.display = "none";
+        document.getElementById('done').style.display = "none";
+    }
+    document.getElementById('clickIng').onclick = function () {
+        document.getElementById('clickUndo').setAttribute('class', '');
+        document.getElementById('clickIng').setAttribute('class', 'ing-active');
+        document.getElementById('clickDone').setAttribute('class', '');
+        document.getElementById('undo').style.display = "none";
+        document.getElementById('ing').style.display = "block";
+        document.getElementById('done').style.display = "none";
+    }
+    document.getElementById('clickDone').onclick = function () {
+        document.getElementById('clickUndo').setAttribute('class', '');
+        document.getElementById('clickIng').setAttribute('class', '');
+        document.getElementById('clickDone').setAttribute('class', 'ing-active');
+        document.getElementById('undo').style.display = "none";
+        document.getElementById('ing').style.display = "none";
+        document.getElementById('done').style.display = "block";
+    }
+    function doneorder(id) {
+        window.location.href = "{% url 'businessorderdone' %}?id=" + id;
+    }
+
+    function complain(opk, b) {
+        $.post("{% url 'complain' %}", {
+                opk: opk,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            function (data) {
+                if (data['status'] === 1) {
+                    alert("感谢您的投诉，我们已限制该用户的相关操作");
+                    location.reload();
+                } else if (data['status'] === 0) {
+                    alert("出错啦");
+                }
+            },
+            "json");
+    }
+</script>
+</html>

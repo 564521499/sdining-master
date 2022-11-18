@@ -1,0 +1,170 @@
+{% load staticfiles %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=600px">
+    <link rel="shortcut icon" href="#" type="image/x-icon"/>
+
+    <meta name="format-detection" content="telephone=no">
+    <title>智慧食堂</title>
+    <!--css-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/index/common_css.css' %}">
+    <link rel="stylesheet" href="{% static 'css/operation/buy.css' %}">
+
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.js"></script>
+
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+<div id="block">
+    <header>
+        <div class="row">
+            <div class="col-xs-3">
+                <a class="glyphicon glyphicon-menu-left" href="{% url 'businessdetail' businesspk %}"></a>
+            </div>
+            <div class="col-xs-6 text-center">
+                <span>预约详情</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="row">
+            <p>您预约的商品：</p>
+            <div class="col-xs-6"><p>菜品名称</p></div>
+            <div class="col-xs-3"><p>份数</p></div>
+            <div class="col-xs-3"><p>金额</p></div>
+        </div>
+        <div id="buy">
+            {% for food in food_list %}
+                <div class="row">
+                    <div class="col-xs-6"><p>{{ food.name }}</p></div>
+                    <div class="col-xs-3"><p>1份</p></div>
+                    <div class="col-xs-3"><p>{{ food.price }}元</p></div>
+                </div>
+            {% endfor %}
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-xs-6"><p>总计</p></div>
+            <div class="col-xs-3"></div>
+            <div class="col-xs-3"><p>{{ pricesum }}元</p></div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4"><span style="font-size: 1.7em">取餐时间</span></div>
+            <div class="col-xs-4">
+                <p>
+                    <select class="form-control" id="h">
+                        <option value="-1">请选择小时</option>
+                        <option value="7">7点</option>
+                        <option value="8">8点</option>
+                        <option value="9">9点</option>
+                        <option value="10">10点</option>
+                        <option value="11">11点</option>
+                        <option value="12">12点</option>
+                        <option value="13">13点</option>
+                        <option value="14">14点</option>
+                        <option value="15">15点</option>
+                        <option value="16">16点</option>
+                        <option value="17">17点</option>
+                        <option value="18">18点</option>
+                        <option value="19">19点</option>
+                        <option value="20">20点</option>
+                    </select>
+                </p>
+            </div>
+            <div class="col-xs-4">
+                <p>
+                    <select class="form-control" id="m">
+                        <option value="-1">请选择分钟</option>
+                        <option value="0">0</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                    </select>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4">
+                <span style="font-size: 1.7em">备注</span>
+            </div>
+            <div class="col-xs-4">
+                <p>
+                    <select class="form-control" id="remark1">
+                        <option value="-1">请选择口味。不选为食物默认口味</option>
+                        <option value="1">不要辣</option>
+                        <option value="2">微辣</option>
+                        <option value="3">辣</option>
+                        <option value="4">特辣</option>
+                    </select>
+                </p>
+            </div>
+            <div class="col-xs-4">
+                <p>
+                <form>
+                    <input type="text" class="form-control" placeholder="如有其它要求请输入" id="remark2">
+                </form>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <div style="margin-top: 100px">
+        <p class="text-center" style="font-size: 2em; color: #d61e06">温馨提示</p>
+        <p class="know">1.提交预约之后，在商家接单之前您可以取消此次订单</p>
+        <p class="know">2.为保障用商家和用户的权益，商家接单后请您在取餐时间段内到相应窗口取餐</p>
+        <p class="know">3.若您晚于取餐时间10分钟以上还未取餐，我们会对用户进行使用限制</p>
+    </div>
+
+
+    <div class="text-center" style="bottom: 0; position: absolute; width: 100%">
+        <button type="button" class="btn btn-success btn-lg btn-block" onclick="submit()">提交订单</button>
+    </div>
+</div>
+
+<script>
+    function submit() {
+        if ($('#h').val() == -1 || $('#m').val() == -1) {
+            alert('您还未选择取餐时间');
+            return false;
+        }
+        time = $('#h').val() + ':' + $('#m').val();
+        if ($('#remark1').val() === -1) {
+            remarkstr = '默认口味' + $('#remark2').val();
+        } else {
+            remarkstr = $('#remark1').find("option:selected").text() + $('#remark2').val();
+        }
+        $.post("{% url 'showorder' %}", {confirm: 1, csrfmiddlewaretoken: '{{ csrf_token }}', time: time, remarkstr: remarkstr},
+            function (data) {
+                if (data['status'] === 1) {
+                    alert("您的订单已成功提交，请待商家接受预约后前往个人中心查看相应订单信息");
+                    window.location.href = "/";
+                }
+                else if (data['status'] === 0) {
+                    alert("提交预约失败，该商家可能目前未开启预约");
+                    window.location.href = "/";
+                }
+                else if (data['status'] === 2) {
+                    alert("商家并不能预约餐饮");
+                    window.location.href = "/";
+                } else if (data['status'] === -1) {
+                    alert("由于您之前发生过预约未取餐的行为，后台已自动限制您使用，请到关于我们联系开发人员解除限制");
+                    window.location.href = "/";
+                } else if (data['status'] === -2) {
+                    alert("您目前还有未完成的进行中订单，请处理后再预约");
+                    window.location.href = "/";
+                }
+            }
+            , "json");
+    }
+</script>
+</body>
+</html>
