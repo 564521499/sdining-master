@@ -1,8 +1,7 @@
 from django.db import models
 
-# from storage.storage import ImgStorage
 from business.models import Business
-from storage.storage import ImgStorage
+from utils.storage.storage import ImgStorage
 
 
 class Banner(models.Model):

@@ -1,32 +1,32 @@
 
 
-import requests
-import re
-from lxml import etree
-
-# url_all = 'https://mp.weixin.qq.com/s/vU_I_4YwDP8d99pmA7XleQ'
-# url_all = 'https://mp.weixin.qq.com/s/YVvccg-I8DAYZ4t9S4sGFQ'
-url_all = 'https://mp.weixin.qq.com/s/3g4gDpZHq0H9AHPnHNC0uw'
-headers = {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'}
-html = requests.get(url_all,headers=headers).content.decode('utf-8')
-print(html)
-
-
-##################################
-pattern = re.compile(r"http://mpvideo.qpic.cn/[^\s]*[',]")
-vedio_url = re.findall(pattern, html)
-print(vedio_url)
-for i in vedio_url:
-    print('视频：', i.replace(r'\x26amp;', '&').replace("',", ''))
-
-pattern_vid = re.compile(r"wxv_[^\s]*[',]")
-vid_url = re.findall(pattern_vid, html)
-print('vid:',vid_url)
-#################################################################3
-
-# 匹配 标题视频封面图
-mator_img = etree.HTML(html).xpath("//meta[@property='og:image']/@content")
-print('mator_img', mator_img)
+# import requests
+# import re
+# from lxml import etree
+#
+# # url_all = 'https://mp.weixin.qq.com/s/vU_I_4YwDP8d99pmA7XleQ'
+# # url_all = 'https://mp.weixin.qq.com/s/YVvccg-I8DAYZ4t9S4sGFQ'
+# url_all = 'https://mp.weixin.qq.com/s/3g4gDpZHq0H9AHPnHNC0uw'
+# headers = {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'}
+# html = requests.get(url_all,headers=headers).content.decode('utf-8')
+# print(html)
+#
+#
+# ##################################
+# pattern = re.compile(r"http://mpvideo.qpic.cn/[^\s]*[',]")
+# vedio_url = re.findall(pattern, html)
+# print(vedio_url)
+# for i in vedio_url:
+#     print('视频：', i.replace(r'\x26amp;', '&').replace("',", ''))
+#
+# pattern_vid = re.compile(r"wxv_[^\s]*[',]")
+# vid_url = re.findall(pattern_vid, html)
+# print('vid:',vid_url)
+# #################################################################3
+#
+# # 匹配 标题视频封面图
+# mator_img = etree.HTML(html).xpath("//meta[@property='og:image']/@content")
+# print('mator_img', mator_img)
 
 
 """
@@ -38,3 +38,9 @@ poster="http://mmbiz.qpic.cn/mmbiz_jpg/Cb2oh8G1Oen45mpiaEETib6A1scY8Kf7B2ah786tK
 webkit-playsinline="isiPhoneShowPlaysinline" playsinline="isiPhoneShowPlaysinline" preload="metadata" crossorigin="anonymous" controlslist="nodownload" 
 class=""> 您的浏览器不支持 video 标签 </video>
 """
+import http
+from http import client
+for i in range(100):
+    print(i)
+    a = http.client.HTTPConnection('www.baidu.com')
+    print(a)
